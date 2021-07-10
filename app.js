@@ -12,14 +12,24 @@ let ulEl = document.getElementById('results')
 
 let Products = [];
 let attempt = 0;
-let maxAttempts = 10;
+let maxAttempts = 25;
+
+let productnamesonly = [];
+
+let votes = [];
+let views = [];
+
+
+
 function Pimgs(productname){
     this.productname = productname.split('.')[0];
     this.imag = 'img/' + productname;
     this.votes = 0;
     this.views = 0;
+    productnamesonly.push(this.productname);
     Products.push(this);
-    // Times the image has been shown
+   
+    
 }
 
 
@@ -69,7 +79,7 @@ for (let i = 0; i < productsImages.length; i++) {
 
 
 }
-// console.log(goats);
+
 renderRandomImg();
 
 
@@ -77,16 +87,6 @@ img1El.addEventListener('click', handelClicks);
 img2El.addEventListener('click', handelClicks);
 img3El.addEventListener('click', handelClicks);
 
-
-// function handelClicks(event) {
-//   if (attempts <= maxAttempts) {
-//       let clickedImg = event.target.id;
-//       if (clickedImg === 'leftImg') {
-//           goats[leftIndex].votes++;
-//       }
-//       else if (clickedImg === 'rightImg') {
-//           goats[rightIndex].votes++;
-//       }
 
 
 function handelClicks(event) {
@@ -105,56 +105,79 @@ function handelClicks(event) {
      else if (event.target.id === 'img3') {
       Products[rightIndex].votes++;
     }  
+
      renderRandomImg()
     console.log(votedImg)
  
   } else { 
     let ulEl =document.getElementById('results')
+
+    let buttonEl = document.getElementById('button')
+    buttonEl.addEventListener('click',analysisresults)
+    function analysisresults(events){
+    
+    
     for (let i=0;i<Products.length;i++){
       let liEl = document.createElement('li');
       liEl.textContent = `${Products[i].productname} has ${Products[i].votes} votes and ${Products[i].views} views .`
       ulEl.appendChild(liEl);
+      votes.push(Products[i].votes);
+      views.push(Products[i].views); 
     }
+    buttonEl.removeEventListener('click', analysisresults);
+    chartRender();
+    }
+
+  
+
     img1El.removeEventListener('click', handelClicks);
     img2El.removeEventListener('click', handelClicks);
     img3El.removeEventListener('click', handelClicks);
-    chartRender();
+
+    savetolocalstorage()
+   
+    
       }
        
-}
+    }
   
   
   console.log(Products) 
 
-  
+  fromLocalStorage();
 
 function chartRender(){
-  var ctx = document.getElementById('myChart').getContext('2d');
-var myChart = new Chart(ctx, {
+  let ctx = document.getElementById('myChart').getContext('2d');
+  let myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: productnamesonly,
         datasets: [{
             label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            data: votes,
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
+          
             ],
             borderColor: [
                 'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
             ],
             borderWidth: 1
-        }]
+        },
+        {
+          
+              label: '# of Views',
+              data: views,
+              backgroundColor: [
+                  'rgba(155, 199, 132, 0.2)',
+            
+              ],
+              borderColor: [
+                  'rgba(155, 199, 132, 1)',
+              ],
+              borderWidth: 1
+          }
+      ]
     },
     options: {
         scales: {
@@ -165,3 +188,42 @@ var myChart = new Chart(ctx, {
     }
 });
 }
+
+
+
+// function savetolocalstorage() {
+//   let data = JSON.stringify(Pimgs.allData);
+//   localStorage.setItem('key1', data);
+// }
+
+// function fromLocalStorage() {
+//   let returnData = localStorage.getItem('key1');
+//   let returnObject = JSON.parse(returnData);
+  
+//   if (returnObject!== null) {
+    
+//       Pimgs.allData = returnObject;
+    
+//   }
+//   else {
+//     Pimgs.allData
+//   }
+
+// }
+
+function savetolocalstorage(){
+  let data = JSON.stringify(Products);
+  localStorage.setItem('key1', data);}
+  
+  
+  function fromLocalStorage() {
+  
+     let obj = JSON.parse(localStorage.getItem('key1'));
+     if (obj !==null) {
+      Products = obj
+     }
+     else {
+      Products;
+     }
+  
+      }
